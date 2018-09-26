@@ -101,26 +101,26 @@ class Chain(object):
         selection = choices[bisect.bisect(cumdist, r)]
         return selection
 
-    def gen(self, init_state=None):
+    def gen(self, init_state=None, len_max=None):
         """
         Starting either with a naive BEGIN state, or the provided `init_state`
         (as a tuple), return a generator that will yield successive items
         until the chain reaches the END state.
         """
         state = init_state or (BEGIN,) * self.state_size
-        while True:
+        while not len(state) > (1000 if (len_max == None) else len_max):
             next_word = self.move(state)
             if next_word == END: break
             yield next_word
             state = tuple(state[1:]) + (next_word,)
 
-    def walk(self, init_state=None):
+    def walk(self, init_state=None, len_max=None):
         """
         Return a list representing a single run of the Markov model, either
         starting with a naive BEGIN state, or the provided `init_state`
         (as a tuple).
         """
-        return list(self.gen(init_state))
+        return list(self.gen(init_state, len_max))
 
     def to_json(self):
         """
